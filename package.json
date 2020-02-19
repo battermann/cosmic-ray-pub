@@ -1,0 +1,23 @@
+{
+  "name": "publisher",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx spago test",
+    "build": "npx spago bundle-app --to Main.js && node ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "purescript": "^0.13.6",
+    "purty": "^4.5.2",
+    "spago": "^0.13.1"
+  },
+  "dependencies": {
+    "decimal.js": "^10.2.0",
+    "pg": "^7.18.1",
+    "redis": "^3.0.2",
+    "standard": "^14.3.1"
+  }
+}
