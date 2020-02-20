@@ -1,4 +1,4 @@
-module EventStream (EventStream, eventStream) where
+module EventStream (EventStream, eventStream, RedisHost(..), RedisPort(..)) where
 
 import Prelude
 import Control.Monad.Except (ExceptT(..), withExceptT)
@@ -7,7 +7,6 @@ import Control.Promise as Promise
 import Data.Argonaut (encodeJson, stringify)
 import Data.Int (fromString)
 import Data.Maybe (Maybe)
-import Debug.Trace (spy)
 import Effect.Aff (attempt)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Effect.Class (liftEffect)
@@ -65,11 +64,17 @@ appendToEvents client event =
     # ExceptT
     # withExceptT show
   where
-  json = (encodeJson $ spy "event" event) # stringify
+  json = encodeJson event # stringify
 
-eventStream :: Result EventStream
-eventStream = do
-  client <- createClient "localhost" 6379 0
+newtype RedisHost
+  = RedisHost String
+
+newtype RedisPort
+  = RedisPort Int
+
+eventStream :: RedisHost -> RedisPort -> Result EventStream
+eventStream (RedisHost host) (RedisPort port) = do
+  client <- createClient host port 0
   pure (fromClient client)
   where
   fromClient client =

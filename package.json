@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx spago test",
-    "build": "npx spago bundle-app --to Main.js && node ."
+    "build": "npx spago build && node ."
   },
   "author": "",
   "license": "ISC",

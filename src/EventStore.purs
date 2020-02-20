@@ -41,17 +41,29 @@ type PG a
 withConnection :: ∀ a. Pool -> (Connection -> PG a) -> PG a
 withConnection = PG.withConnection runExceptT
 
-eventStore :: Result EventStore
-eventStore = do
+newtype DbName
+  = DbName String
+
+newtype DbUser
+  = DbUser String
+
+newtype DbPass
+  = DbPass String
+
+newtype DbHost
+  = DbHost String
+
+eventStore :: DbHost -> DbName -> DbUser -> DbPass -> Result EventStore
+eventStore (DbHost host) (DbName name) (DbUser user) (DbPass pass) = do
   pool <- liftEffect $ newPool connection
   pure { events: \id limit -> withExceptT show $ withConnection pool (events id limit) }
   where
   connection =
-    (defaultPoolConfiguration "postgres")
+    (defaultPoolConfiguration name)
       { idleTimeoutMillis = Just 1000
-      , user = Just "postgres"
-      , password = Just "secret"
-      , host = Just "localhost"
+      , user = Just user
+      , password = Just pass
+      , host = Just host
       }
 
 events :: ∀ m. Bind m => MonadError PGError m => MonadAff m => EventId -> Limit -> Connection -> m (Array Event)
