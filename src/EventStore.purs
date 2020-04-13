@@ -25,8 +25,8 @@ newtype Event
 
 instance eventToJson :: EncodeJson Event where
   encodeJson (Event event) =
-    "id" := unwrap event.id
-      ~> ("data" := event.data)
+    "offset" := unwrap event.id
+      ~> ("payload" := event.data)
       ~> jsonEmptyObject
     where
     unwrap (EventId id) = id
