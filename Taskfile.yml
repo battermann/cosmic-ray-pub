@@ -4,4 +4,4 @@ version: '2'
 tasks:
   start-local:
     cmds:
-      - REDIS_HOST="localhost" REDIS_PORT=6379 DB_HOST="localhost" DB_NAME="postgres" DB_USER="postgres" DB_PASS="secret" npm run build
+      - npm run build && REDIS_HOST="localhost" REDIS_PORT=6379 DB_HOST="localhost" DB_NAME="postgres" DB_USER="postgres" DB_PASS="secret" npm run start
