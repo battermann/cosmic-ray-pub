@@ -4,7 +4,6 @@ import Prelude
 import Control.Monad.Except (lift, runExceptT)
 import Data.Either (Either(..))
 import Data.Foldable (traverse_)
-import Data.Int (fromString)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested ((/\))
@@ -12,14 +11,13 @@ import Effect (Effect)
 import Effect.Aff (Aff, Milliseconds(..), delay, launchAff_)
 import Effect.Class.Console (log)
 import EventStore (DbHost(..), DbName(..), DbPass(..), DbUser(..), Event(..), EventStore, eventStore)
-import EventStream (EventStream, RedisHost(..), RedisPort(..), eventStream)
+import EventStream (EventStream, RedisUrl(..), eventStream)
 import Node.Process (lookupEnv)
 import Types (Result, Limit(..), EventId(..))
 
 main :: Effect Unit
 main = do
-  redisHost <- lookupEnv "REDIS_HOST" <#> map RedisHost
-  redisPort <- lookupEnv "REDIS_PORT" <#> (_ >>= fromString) <#> map RedisPort
+  redisUrl <- lookupEnv "REDIS_URL" <#> map RedisUrl
   dbHost <- lookupEnv "DB_HOST" <#> map DbHost
   dbName <- lookupEnv "DB_NAME" <#> map DbName
   dbUser <- lookupEnv "DB_USER" <#> map DbUser
@@ -27,8 +25,7 @@ main = do
   let
     maybeAff =
       program
-        <$> redisHost
-        <*> redisPort
+        <$> redisUrl
         <*> dbHost
         <*> dbName
         <*> dbUser
@@ -37,9 +34,9 @@ main = do
     Nothing -> log "Please set correct env vars"
     Just p -> launchAff_ p
 
-program :: RedisHost -> RedisPort -> DbHost -> DbName -> DbUser -> DbPass -> Aff Unit
-program redisHost redisPort dbHost dbName dbUser dbPass = do
-  streamOrError <- runExceptT $ eventStream redisHost redisPort
+program :: RedisUrl -> DbHost -> DbName -> DbUser -> DbPass -> Aff Unit
+program redisUrl dbHost dbName dbUser dbPass = do
+  streamOrError <- runExceptT $ eventStream redisUrl
   esOrError <- runExceptT $ eventStore dbHost dbName dbUser dbPass
   result <- case Tuple <$> streamOrError <*> esOrError of
     Left err -> pure $ Left err

@@ -3,19 +3,13 @@
 const redis = require('redis')
 const { promisify } = require('util')
 
-exports.createClientImpl = function (host) {
-  return function (port) {
-    return function (db) {
-      return function (onError, onSuccess) {
-        const client = redis.createClient({
-          host: host,
-          port: port,
-          db: db
-        })
-        client.on('error', function (err) { client.quit(); onError(err) })
-        client.on('connect', function () { onSuccess(client) })
-      }
-    }
+exports.createClientImpl = function (url) {
+  return function (onError, onSuccess) {
+    const client = redis.createClient({
+      url: url
+    })
+    client.on('error', function (err) { client.quit(); onError(err) })
+    client.on('connect', function () { onSuccess(client) })
   }
 }
 

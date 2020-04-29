@@ -1,4 +1,4 @@
-module EventStream (EventStream, eventStream, RedisHost(..), RedisPort(..)) where
+module EventStream (EventStream, eventStream, RedisUrl(..)) where
 
 import Prelude
 import Control.Monad.Except (ExceptT(..), withExceptT)
@@ -23,10 +23,10 @@ type EventStream
 
 foreign import data RedisClient :: Type
 
-foreign import createClientImpl :: String -> Int -> Int -> EffectFnAff RedisClient
+foreign import createClientImpl :: String -> EffectFnAff RedisClient
 
-createClient :: String -> Int -> Int -> Result RedisClient
-createClient host port db = fromEffectFnAff (createClientImpl host port db) # attempt # ExceptT # withExceptT show
+createClient :: String -> Result RedisClient
+createClient url = fromEffectFnAff (createClientImpl url) # attempt # ExceptT # withExceptT show
 
 foreign import quitClientImpl :: EffectFn1 RedisClient Unit
 
@@ -72,9 +72,12 @@ newtype RedisHost
 newtype RedisPort
   = RedisPort Int
 
-eventStream :: RedisHost -> RedisPort -> Result EventStream
-eventStream (RedisHost host) (RedisPort port) = do
-  client <- createClient host port 0
+newtype RedisUrl
+  = RedisUrl String
+
+eventStream :: RedisUrl -> Result EventStream
+eventStream (RedisUrl url) = do
+  client <- createClient url
   pure (fromClient client)
   where
   fromClient client =

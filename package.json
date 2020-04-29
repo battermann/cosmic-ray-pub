@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx spago test",
     "build": "npx spago build",
-    "start": "node ."
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
