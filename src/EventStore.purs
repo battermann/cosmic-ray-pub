@@ -55,15 +55,16 @@ newtype DbHost
 
 eventStore :: DbHost -> DbName -> DbUser -> DbPass -> Result EventStore
 eventStore (DbHost host) (DbName name) (DbUser user) (DbPass pass) = do
-  pool <- liftEffect $ newPool connection
+  pool <- liftEffect $ newPool config
   pure { events: \id limit -> withExceptT show $ withConnection pool (events id limit) }
   where
-  connection =
+  config =
     (defaultPoolConfiguration name)
       { idleTimeoutMillis = Just 1000
       , user = Just user
       , password = Just pass
       , host = Just host
+      , max = Just 5
       }
 
 events :: ∀ m. Bind m => MonadError PGError m => MonadAff m => EventId -> Limit -> Connection -> m (Array Event)
