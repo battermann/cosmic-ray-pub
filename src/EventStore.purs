@@ -64,7 +64,7 @@ eventStore (DbHost host) (DbName name) (DbUser user) (DbPass pass) = do
       , user = Just user
       , password = Just pass
       , host = Just host
-      , max = Just 5
+      , max = Just 2
       }
 
 events :: ∀ m. Bind m => MonadError PGError m => MonadAff m => EventId -> Limit -> Connection -> m (Array Event)
